@@ -1,0 +1,5 @@
+echo "*.aux" > .gitignore
+echo "*.log" >> .gitignore
+echo "*.out" >> .gitignore
+echo "*.toc" >> .gitignore
+echo "*.synctex.gz" >> .gitignore
