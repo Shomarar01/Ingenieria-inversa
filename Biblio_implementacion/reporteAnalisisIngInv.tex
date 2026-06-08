@@ -1,0 +1,243 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[spanish]{babel}
+\usepackage{listings}
+
+% Preámbulo
+
+\title{Sistema de Gestión de una Escuela}
+\author{Documentación de Base de Datos}
+\date{\today}
+
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,          
+    breaklines=true,                  
+    captionpos=b,                     
+    keepspaces=true,                  
+    numbers=left,                     
+    numbersep=5pt,                  
+    showspaces=false,                 
+    showstringspaces=false,
+    showtabs=false,                   
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+ \renewcommand{\lstlistingname}{Código}
+ \renewcommand{\lstlistlistingname}{Lista de códigos}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\lstlistoflistings
+
+\section{Introducción}
+En el entorno educativo actual, la administración eficiente de la información académica es fundamental para el correcto funcionamiento de una institución. Los procesos de asignación docente, control de matrículas, programación de horarios en aulas físicas y el seguimiento del rendimiento de los alumnos generan un volumen de datos que requiere centralización. Este documento detalla el diseño e implementación del modelo de datos para el sistema denominado "escuela".
+
+\section{Descripción del problema}
+La institución carecía de un mecanismo unificado para relacionar sus diferentes áreas operativas. Los departamentos académicos funcionaban de manera aislada a la asignación de espacios físicos (aulas), lo que provocaba riesgos de duplicidad de horarios o sobrecupos. Asimismo, el registro de las notas finales de los estudiantes dependía de actas manuales propensas a errores. Se requería diseñar una base de datos relacional robusta que garantizara la consistencia mediante restricciones de integridad.
+
+\subsection{Análisis y diseño}
+Mediante ingeniería inversa aplicada al esquema, se determinó una estructura compuesta por 8 entidades principales normalizadas para evitar redundancias:
+\begin{itemize}
+    \item \textbf{departamentos:} Almacena las áreas académicas de la institución.
+    \item \textbf{profesores:} Registra al personal docente adscrito a un departamento específico (Relación 1 a Muchos).
+    \item \textbf{cursos:} Lista de materias que son impartidas por un profesor titular.
+    \item \textbf{estudiantes:} Contiene la información de los alumnos matriculados.
+    \item \textbf{inscripciones:} Entidad intermedia que rompe la relación Muchos a Muchos entre estudiantes y cursos, registrando la fecha del alta.
+    \item \textbf{aulas:} Infraestructura física con control de capacidad.
+    \item \textbf{horarios:} Modela la asignación de los cursos en un aula, día y rango de horas específicos.
+    \item \textbf{notas:} Registra las calificaciones cuantitativas finales vinculadas directamente a una inscripción.
+\end{itemize}
+
+\subsection{Implementación y validación}
+A continuación, se presentan los scripts estructurados para el despliegue del sistema y la posterior validación del modelo mediante la carga de datos iniciales.
+
+\begin{lstlisting}[language=SQL, frame=single, numbers=left, caption={Script de creación de las tablas para el modelo de datos (DDL)}]
+-- Crear Base de Datos
+CREATE DATABASE IF NOT EXISTS escuela;
+USE escuela;
+
+-- Tabla de Departamentos
+CREATE TABLE departamentos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL
+);
+
+-- Tabla de Profesores
+CREATE TABLE profesores (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100),
+    apellido VARCHAR(100),
+    email VARCHAR(100),
+    id_departamento INT,
+    FOREIGN KEY (id_departamento) REFERENCES departamentos(id)
+);
+
+-- Tabla de Cursos
+CREATE TABLE cursos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100),
+    creditos INT,
+    id_profesor INT,
+    FOREIGN KEY (id_profesor) REFERENCES profesores(id)
+);
+
+-- Tabla de Estudiantes
+CREATE TABLE estudiantes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100),
+    apellido VARCHAR(100),
+    email VARCHAR(100),
+    fecha_nacimiento DATE
+);
+
+-- Tabla de Inscripciones
+CREATE TABLE inscripciones (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_estudiante INT,
+    id_curso INT,
+    fecha_inscripcion DATE,
+    FOREIGN KEY (id_estudiante) REFERENCES estudiantes(id),
+    FOREIGN KEY (id_curso) REFERENCES cursos(id)
+);
+
+-- Tabla de Aulas
+CREATE TABLE aulas (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(50),
+    capacidad INT
+);
+
+-- Tabla de Horarios
+CREATE TABLE horarios (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_curso INT,
+    id_aula INT,
+    dia_semana VARCHAR(15),
+    hora_inicio TIME,
+    hora_fin TIME,
+    FOREIGN KEY (id_curso) REFERENCES cursos(id),
+    FOREIGN KEY (id_aula) REFERENCES aulas(id)
+);
+
+-- Tabla de Notas
+CREATE TABLE notas (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_inscripcion INT,
+    nota DECIMAL(4,2),
+    FOREIGN KEY (id_inscripcion) REFERENCES inscripciones(id)
+);
+\end{lstlisting}
+
+\newpage
+
+\begin{text}
+A continuación se detallan las instrucciones correspondientes a la inserción de las tuplas de prueba para evaluar el comportamiento de las llaves foráneas.
+\end{text}
+
+\begin{lstlisting}[language=SQL, frame=single, numbers=left, caption={Script de inserción de datos sobre la estructura del modelo de datos (DML)}]
+-- Insertar datos en Departamentos
+INSERT INTO departamentos (nombre) VALUES 
+('Matemáticas'), ('Ciencias'), ('Humanidades'), ('Ingeniería');
+
+-- Insertar datos en Profesores
+INSERT INTO profesores (nombre, apellido, email, id_departamento) VALUES
+('Ana', 'Ramírez', 'ana.ramirez@escuela.edu', 1),
+('Luis', 'González', 'luis.gonzalez@escuela.edu', 2),
+('Clara', 'López', 'clara.lopez@escuela.edu', 3),
+('Pedro', 'Martínez', 'pedro.martinez@escuela.edu', 4);
+
+-- Insertar datos en Cursos
+INSERT INTO cursos (nombre, creditos, id_profesor) VALUES
+('Álgebra', 5, 1),
+('Biología', 4, 2),
+('Historia', 3, 3),
+('Programación', 6, 4),
+('Física', 4, 2),
+('Ética', 2, 3);
+
+-- Insertar datos en Estudiantes
+INSERT INTO estudiantes (nombre, apellido, email, fecha_nacimiento) VALUES
+('Juan', 'Pérez', 'juan.perez@correo.com', '2000-04-15'),
+('María', 'Gómez', 'maria.gomez@correo.com', '2001-06-21'),
+('Carlos', 'Sánchez', 'carlos.sanchez@correo.com', '1999-12-30'),
+('Lucía', 'Díaz', 'lucia.diaz@correo.com', '2002-01-10');
+
+-- Insertar datos en Inscripciones
+INSERT INTO inscripciones (id_estudiante, id_curso, fecha_inscripcion) VALUES
+(1, 1, '2024-01-15'),
+(1, 2, '2024-01-15'),
+(2, 1, '2024-01-20'),
+(2, 3, '2024-01-21'),
+(3, 4, '2024-01-22'),
+(4, 5, '2024-01-23');
+
+-- Insertar datos en Aulas
+INSERT INTO aulas (nombre, capacidad) VALUES
+('Aula 101', 30),
+('Aula 102', 25),
+('Laboratorio 1', 20),
+('Sala Conferencias', 50);
+
+-- Insertar datos en Horarios
+INSERT INTO horarios (id_curso, id_aula, dia_semana, hora_inicio, hora_fin) VALUES
+(1, 1, 'Lunes', '08:00:00', '10:00:00'),
+(2, 2, 'Martes', '10:00:00', '12:00:00'),
+(3, 4, 'Miércoles', '13:00:00', '15:00:00'),
+(4, 3, 'Jueves', '09:00:00', '11:00:00'),
+(5, 2, 'Viernes', '08:00:00', '10:00:00');
+
+-- Insertar datos en Notas
+INSERT INTO notas (id_inscripcion, nota) VALUES
+(1, 8.5),
+(2, 9.0),
+(3, 7.5),
+(4, 6.8),
+(5, 9.2),
+(6, 7.0);
+\end{lstlisting}
+
+\section{Preguntas del Modelo}
+A continuación, se listan las interrogantes planteadas para evaluar la integridad y funcionalidad del esquema de la base de datos \textit{escuela}:
+
+\begin{enumerate}
+    \item ¿Cuáles son los estudiantes inscritos en el curso "Álgebra"?
+    \item ¿Qué cursos imparte el profesor Pedro Martínez?
+    \item ¿Cuántos estudiantes están inscritos en cada curso?
+    \item ¿Cuál es el promedio de notas por curso?
+    \item Lista de estudiantes con notas mayores a 8.0
+    \item ¿Qué cursos tienen más de una inscripción?
+    \item ¿Qué profesores pertenecen al departamento de 'Ingeniería'?
+    \item ¿Cuáles son los cursos programados los lunes?
+    \item ¿Qué aulas tienen una capacidad mayor a 25?
+    \item Lista de cursos con su aula y horario
+    \item ¿Qué estudiantes tiene la nota más alta y en qué cursos?
+    \item ¿Cuántos profesores hay por departamento?
+    \item ¿Qué cursos no tienen estudiantes inscritos?
+    \item ¿Qué estudiantes están inscritos en más de un curso?
+    \item ¿Cuál es el curso con menor promedio de notas?
+\end{enumerate}
+
+\section{Conclusiones}
+El diseño relacional implementado para el sistema "escuela" resuelve con éxito las necesidades operativas institucionales. La utilización de restricciones de integridad referencial (\textit{Foreign Keys}) previene la existencia de registros huérfanos, garantizando que ninguna nota o inscripción ocurra fuera de un marco de cursos y estudiantes plenamente existentes. El modelo cumple satisfactoriamente las condiciones académicas de consistencia de la información.
+
+\section{Bibliografía}
+\begin{itemize}
+    \item Elmasri, R., \& Navathe, S. B. (2016). \textit{Fundamentos de Sistemas de Bases de Datos}. Pearson Educación.
+    \item Silberschatz, A., Korth, H. F., \& Sudarshan, S. (2006). \textit{Fundamentos de Bases de Datos}. McGraw-Hill.
+\end{itemize}
+
+\end{document}

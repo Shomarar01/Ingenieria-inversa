@@ -1,0 +1,5 @@
+\babel@toc {spanish}{}\relax 
+\contentsline {section}{\numberline {1}Introducción}{1}{}%
+\contentsline {section}{\numberline {2}Descripcion del problema}{1}{}%
+\contentsline {section}{\numberline {3}Analisis y diseno}{1}{}%
+\contentsline {section}{\numberline {4}Implementacion y validacion}{1}{}%

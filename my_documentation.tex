@@ -1,0 +1,76 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[spanish]{babel}
+\usepackage{listings}
+
+% Preámbulo
+
+\title{Sistema de gestión de una Biblioteca Universitaria}
+\author{Shomara Berenice Rivera Huerta}
+\date{\today}
+
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+ \renewcommand{\lstlistingname}{Código}
+ \renewcommand{\lstlistlistingname}{Lista de códigos}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\lstlistoflistings
+
+\section{Introducción}
+
+La biblioteca cuenta con \textbf{libro}, de los cuales puede tener varios ejemplares físicos para cada título. Cada libro tienen un título, año de publicación, ISBN y pertenece a una o mas categorías (Ciencias, Humanidades, Ingeniería, etc.). Además, cada libro fue escrito por uno o más autores.
+
+Los usuarios pueden ser estudiantes o profesores. De cada uno se guarda el nombre, correo , número de cuenta y tipo. Un usuario puede tener activos varios préstamos simultáneos (máximo 3), pero un ejemplar solo puede estar prestado a un usuario a la vez.
+
+Cada préstamo registra la fecha de salida, la fecha de devolución esperada y la fecha real de devolución (en el caso de que ya se haya devuelto el ejemplar). Si un préstamo se devuelve más tarde, se registra una multa con el monto y si fue pagada o no.
+
+\section{Descripción del problema}
+\subsection{Análisis y diseño}
+\subsection{Implementación y validación}
+
+
+% Incluir los scripts solo si existen para evitar errores en la compilación
+\IfFileExists{codes/create.sql}{%
+    \lstinputlisting[language=SQL, frame=single, numbers=left, caption={Script de creación de las tablas para el modelo de datos}]{codes/create.sql}%
+}{%
+    \begin{center}\textbf{Archivo codes/create.sql no encontrado.}\end{center}%
+}
+\IfFileExists{codes/insertions.sql}{%
+    \lstinputlisting[language=SQL, frame=single, numbers=left, caption={Script de inserción de datos sobre la estructura del modelo de datos}]{codes/insertions.sql}%
+}{%
+    \begin{center}\textbf{Archivo codes/insertions.sql no encontrado.}\end{center}%
+}
+
+\section{Conclusiones}
+
+\section{Bibliografía}
+
+
+\end{document}

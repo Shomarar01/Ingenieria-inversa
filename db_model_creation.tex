@@ -1,0 +1,55 @@
+\documentclass[letterpaper,12pt]{article}
+
+\usepackage[spanish, es-tabla]{babel}
+\userpackage{graphicx}
+
+\author{Shomara Rivera}
+\title{Proceso de diseño de modelo de datos para un sistema de gestion de una biblioteca}
+\date{\today}
+
+\begin{document}
+\maketitle
+\section{Contexto}
+Una biblioteca universitaria necesita digitalizar su operación. Actualmente lleva el control en papel y requiere un sistema computacional que gestione su acervo, los prestamos y los usuarios.
+
+\section{Descripcion del dominio}
+La biblioteca cuenta con \textbf{libro}, de los cuales puede tener varios ejemplares físicos para cada título. Cada libro tienen un título, año de publicación, ISBN y pertenece a una o mas categorías (Ciencias, Humanidades, Ingeniería, etc.). Además, cada libro fue escrito por uno o más autores.
+
+Los usuarios pueden ser estudiantes o profesores. De cada uno se guarda el nombre, correo , número de cuenta y tipo. Un usuario puede tener activos varios préstamos simultáneos (máximo 3), pero un ejemplar solo puede estar prestado a un usuario a la vez.
+
+Cada préstamo registra la fecha de salida, la fecha de devolución esperada y la fecha real de devolución (en el caso de que ya se haya devuelto el ejemplar). Si un préstamo se devuelve más tarde, se registra una multa con el monto y si fue pagada o no.
+
+\section{Parte 1 - Modelo Entidad-Relación (DER)}   
+\begin{figure}[!h]
+    \includegraphics[scale =0.8]{DER.png}
+    \caption{Diagrama Entidad-Relación para el sistema de gestión de la biblioteca}
+    \label{fig_der}
+\end{figure} 
+
+
+\begin{table}
+    \begin{tabular}{|c|c|}
+        \hline
+        Que identificar? & Pista \\
+        \hline
+        Entidades & Que cosa del dominio tiene datos propios? \\
+        Atributos clave & Que identifica universalmente \\
+        Relaciones & Como se vinculan entre si? \\
+        Entidades debiles & Hay alguna que exista sin otra? \\
+        \hline
+    \end{tabular}
+
+\caption{Identificacion de entidades y relaciones en el DER}
+\label{tbl_er}
+\end{table}
+
+\section{Parte 2 - Modelo Relacional }
+
+\section{Parte 3 - Implementación en MySQL }
+
+\section{Parte 4 - Consultas SQL (entregable)}
+Una vez creado el esquema e insertados datos de prueba, responde con consultas:
+
+Lista todos los libros disponibles para préstamo (con autor y categoría). Muestra los usuarios que tienen préstamos vencidos hoy. Calcula el total de multas pendientes de pago por usuario. ¿Qué ejemplar ha sido el más prestado históricamente? Lista los autores que tienen más de 2 libros en el acervo.
+
+\end{document}
