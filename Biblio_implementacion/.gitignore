@@ -1,5 +1,10 @@
-echo "*.aux" > .gitignore
-echo "*.log" >> .gitignore
-echo "*.out" >> .gitignore
-echo "*.toc" >> .gitignore
-echo "*.synctex.gz" >> .gitignore
+# Archivos basura de LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.pdf
+# Otros archivos que no sean tu código fuente
+*.db
+*.sqlite
