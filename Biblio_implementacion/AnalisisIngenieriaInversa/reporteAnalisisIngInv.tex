@@ -1,11 +1,13 @@
 \documentclass[10pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
 \usepackage{listings}
+\usepackage{graphicx}
 
 % Preámbulo
 
 \title{Sistema de Gestión de una Escuela}
-\author{Documentación de Base de Datos}
+\author{Shomara Rivera}
 \date{\today}
 
 \usepackage{xcolor}
@@ -31,7 +33,9 @@
     showspaces=false,                 
     showstringspaces=false,
     showtabs=false,                   
-    tabsize=2
+    tabsize=2,
+    extendedchars=true,
+    literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{\textquestiondown}}1 {¡}{{\textexclamdown}}1
 }
 \lstset{style=mystyle}
 
@@ -61,6 +65,12 @@ Mediante ingeniería inversa aplicada al esquema, se determinó una estructura c
     \item \textbf{horarios:} Modela la asignación de los cursos en un aula, día y rango de horas específicos.
     \item \textbf{notas:} Registra las calificaciones cuantitativas finales vinculadas directamente a una inscripción.
 \end{itemize}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{diagrama.png} 
+    \caption{Diagrama Entidad-Relación del Sistema Escuela}
+    \label{fig:diagrama}
+\end{figure}
 
 \subsection{Implementación y validación}
 A continuación, se presentan los scripts estructurados para el despliegue del sistema y la posterior validación del modelo mediante la carga de datos iniciales.
@@ -144,9 +154,7 @@ CREATE TABLE notas (
 
 \newpage
 
-\begin{text}
 A continuación se detallan las instrucciones correspondientes a la inserción de las tuplas de prueba para evaluar el comportamiento de las llaves foráneas.
-\end{text}
 
 \begin{lstlisting}[language=SQL, frame=single, numbers=left, caption={Script de inserción de datos sobre la estructura del modelo de datos (DML)}]
 -- Insertar datos en Departamentos
@@ -222,6 +230,14 @@ A continuación, se listan las interrogantes planteadas para evaluar la integrid
         INNER JOIN cursos c ON i.id_curso = c.id
         WHERE c.nombre = 'Algebra';
     \end{lstlisting}
+    \begin{verbatim}
+    +-------------------+
+    | Nombre_estudiante |
+    +-------------------+
+    | Juan Pérez        |
+    | María Gómez       |
+    +-------------------+
+    \end{verbatim}
 
 
     \item ¿Qué cursos imparte el profesor Pedro Martínez?
@@ -232,7 +248,13 @@ A continuación, se listan las interrogantes planteadas para evaluar la integrid
         INNER JOIN profesores p ON c.id_profesor = p.id
         WHERE p.nombre = 'Pedro' AND p.apellido = 'Martínez';
     \end{lstlisting}
-
+    \begin{verbatim}
+        +--------------+-----------------+
+        | Nombre_curso | Nombre_profesor |
+        +--------------+-----------------+
+        | Programación | Pedro Martínez  |
+        +--------------+-----------------+
+    \end{verbatim}
 
     \item ¿Cuántos estudiantes están inscritos en cada curso?
     \begin{lstlisting}[language=SQL, frame=single, numbers=left, caption={Consulta 3: Total de estudiantes por curso}]
@@ -242,6 +264,17 @@ A continuación, se listan las interrogantes planteadas para evaluar la integrid
         LEFT JOIN inscripciones i ON c.id = i.id_curso
         GROUP BY c.id, c.nombre;
     \end{lstlisting}
+    \begin{verbatim}
+    +--------------+-------------------+
+    | Nombre_curso | Total_estudiantes |
+    +--------------+-------------------+
+    | Álgebra      |                 2 |
+    | Biología     |                 1 |
+    | Historia     |                 1 |
+    | Programación |                 1 |
+    | Física       |                 1 |
+    +--------------+-------------------+
+    \end{verbatim}
 
 
     \item ¿Cuál es el promedio de notas por curso?
@@ -253,6 +286,18 @@ A continuación, se listan las interrogantes planteadas para evaluar la integrid
         INNER JOIN notas n ON i.id = n.id_inscripcion
         GROUP BY c.nombre;
     \end{lstlisting}
+    \begin{verbatim}
+    +--------------+----------+
+    | Nombre_curso | Promedio |
+    +--------------+----------+
+    | Álgebra      | 8.000000 |
+    | Biología     | 9.000000 |
+    | Historia     | 6.800000 |
+    | Programación | 9.200000 |
+    | Física       | 7.000000 |
+    +--------------+----------+
+    
+    \end{verbatim}
 
 
 
@@ -265,6 +310,15 @@ A continuación, se listan las interrogantes planteadas para evaluar la integrid
         INNER JOIN notas n ON i.id = n.id_inscripcion
         WHERE n.nota > 8.0;
     \end{lstlisting}
+    \begin{verbatim}
+    +-------------------+--------------+
+    | Nombre_estudiante | Calificacion |
+    +-------------------+--------------+
+    | Juan Pérez        |         8.50 |
+    | Juan Pérez        |         9.00 |
+    | Carlos Sánchez    |         9.20 |
+    +-------------------+--------------+
+    \end{verbatim}
 
 
     \item ¿Qué cursos tienen más de una inscripción?
@@ -276,6 +330,14 @@ A continuación, se listan las interrogantes planteadas para evaluar la integrid
         GROUP BY c.nombre
         HAVING COUNT(i.id_estudiante) > 1;
     \end{lstlisting}
+    \begin{verbatim}
+        +--------------+---------------------+
+        | Nombre_curso | Total_inscripciones |
+        +--------------+---------------------+
+        | Álgebra      |                   2 |
+        +--------------+---------------------+
+    \end{verbatim}
+
 
     \item ¿Qué profesores pertenecen al departamento de 'Ingeniería'?
     \begin{lstlisting}[language=SQL, frame=single, numbers=left, caption={Consulta 7: Profesores del departamento Ingeniería}]
@@ -285,6 +347,13 @@ A continuación, se listan las interrogantes planteadas para evaluar la integrid
         INNER JOIN departamentos d ON p.id_departamento = d.id
         WHERE d.nombre = 'Ingeniería';
     \end{lstlisting}
+    \begin{verbatim}
+    +-----------------+--------------+
+    | Nombre_profesor | Departamento |
+    +-----------------+--------------+
+    | Pedro Martínez  | Ingeniería   |
+    +-----------------+--------------+
+    \end{verbatim}
 
 
     \item ¿Cuáles son los cursos programados los lunes?
@@ -295,7 +364,13 @@ A continuación, se listan las interrogantes planteadas para evaluar la integrid
         INNER JOIN horarios h ON c.id = h.id_curso
         WHERE h.dia_semana = 'Lunes';
     \end{lstlisting}
-
+    \begin{verbatim}
+        +--------------+-------+
+        | Nombre_curso | Dia   |
+        +--------------+-------+
+        | Álgebra      | Lunes |
+        +--------------+-------+
+            \end{verbatim}                  
 
 
     \item ¿Qué aulas tienen una capacidad mayor a 25?
@@ -305,6 +380,14 @@ A continuación, se listan las interrogantes planteadas para evaluar la integrid
         FROM aulas
         WHERE capacidad > 25;
     \end{lstlisting}
+    \begin{verbatim}
+    +-------------------+-----------+
+    | Nombre_aula       | Capacidad |
+    +-------------------+-----------+
+    | Aula 101          |        30 |
+    | Sala Conferencias |        50 |
+    +-------------------+-----------+
+    \end{verbatim}
 
 
     \item Lista de cursos con su aula y horario
@@ -318,6 +401,18 @@ A continuación, se listan las interrogantes planteadas para evaluar la integrid
         INNER JOIN horarios h ON c.id = h.id_curso
         INNER JOIN aulas a ON h.id_aula = a.id;
     \end{lstlisting}
+    \begin{verbatim}
+    +--------------+-------------------+-----------+----------+----------+
+    | Nombre_curso | Nombre_aula       | Dia       | Inicio   | Fin      |
+    +--------------+-------------------+-----------+----------+----------+
+    | Álgebra      | Aula 101          | Lunes     | 08:00:00 | 10:00:00 |
+    | Biología     | Aula 102          | Martes    | 10:00:00 | 12:00:00 |
+    | Historia     | Sala Conferencias | Miércoles | 13:00:00 | 15:00:00 |
+    | Programación | Laboratorio 1     | Jueves    | 09:00:00 | 11:00:00 |
+    | Física       | Aula 102          | Viernes   | 08:00:00 | 10:00:00 |
+    +--------------+-------------------+-----------+----------+----------+
+    \end{verbatim}
+
 
     \item ¿Qué estudiantes tiene la nota más alta y en qué cursos?
     \begin{lstlisting}[language=SQL, frame=single, numbers=left, caption={Consulta 11: Estudiantes con nota máxima}]
@@ -331,6 +426,14 @@ A continuación, se listan las interrogantes planteadas para evaluar la integrid
         ORDER BY n.nota DESC
         LIMIT 1;
     \end{lstlisting}
+    \begin{verbatim}
+    +-------------------+--------------+-------------+
+    | Nombre_estudiante | Nombre_curso | Nota_maxima |
+    +-------------------+--------------+-------------+
+    | Carlos Sánchez    | Programación |        9.20 |
+    +-------------------+--------------+-------------+
+    \end{verbatim}
+
 
     \item ¿Cuántos profesores hay por departamento?
     \begin{lstlisting}[language=SQL, frame=single, numbers=left, caption={Consulta 12: Profesores por departamento}]
@@ -340,6 +443,17 @@ A continuación, se listan las interrogantes planteadas para evaluar la integrid
         INNER JOIN profesores p ON d.id = p.id_departamento
         GROUP BY d.nombre;
     \end{lstlisting}
+    \begin{verbatim}
+    +-------------+------------------+
+    | Departamento| Total_profesores |
+    +-------------+------------------+
+    | Ciencias    |                1 |
+    | Humanidades |                1 |
+    | Ingeniería  |                1 |
+    | Matemáticas |                1 |
+    +-------------+------------------+
+    \end{verbatim}
+
 
     \item ¿Qué cursos no tienen estudiantes inscritos?
     \begin{lstlisting}[language=SQL, frame=single, numbers=left, caption={Consulta 13: Cursos sin inscripciones}]
@@ -348,6 +462,14 @@ A continuación, se listan las interrogantes planteadas para evaluar la integrid
         LEFT JOIN inscripciones i ON c.id = i.id_curso
         WHERE i.id_estudiante IS NULL;
     \end{lstlisting}
+    \begin{verbatim}
+    +--------------+
+    | Nombre_curso |
+    +--------------+
+    | Ética        |
+    +--------------+
+    \end{verbatim}
+
 
     \item ¿Qué estudiantes están inscritos en más de un curso?
     \begin{lstlisting}[language=SQL, frame=single, numbers=left, caption={Consulta 14: Estudiantes con más de un curso}]
@@ -358,6 +480,15 @@ A continuación, se listan las interrogantes planteadas para evaluar la integrid
         GROUP BY e.id, Nombre_estudiante
         HAVING COUNT(i.id_curso) > 1;
     \end{lstlisting}
+    \begin{verbatim}
+    +-------------------+------------------+
+    | Nombre_estudiante | Cursos_inscritos |
+    +-------------------+------------------+
+    | Juan Pérez        |                2 |
+    | María Gómez       |                2 |
+    +-------------------+------------------+
+    \end{verbatim}
+
 
     \item ¿Cuál es el curso con menor promedio de notas?
     \begin{lstlisting}[language=SQL, frame=single, numbers=left, caption={Consulta 15: Curso con menor promedio de notas}]
@@ -370,15 +501,17 @@ A continuación, se listan las interrogantes planteadas para evaluar la integrid
         ORDER BY Promedio ASC
         LIMIT 1;
     \end{lstlisting}
+    \begin{verbatim}
+    +--------------+----------+
+    | Nombre_curso | Promedio |
+    +--------------+----------+
+    | Historia     | 6.800000 |
+    +--------------+----------+
+    \end{verbatim}
 \end{enumerate}
 
 \section{Conclusiones}
-El diseño relacional implementado para el sistema "escuela" resuelve con éxito las necesidades operativas institucionales. La utilización de restricciones de integridad referencial (\textit{Foreign Keys}) previene la existencia de registros huérfanos, garantizando que ninguna nota o inscripción ocurra fuera de un marco de cursos y estudiantes plenamente existentes. El modelo cumple satisfactoriamente las condiciones académicas de consistencia de la información.
+Hacer la ingeniería inversa de esta base de datos nos permitió entender muy bien cómo se conecta toda la información de la escuela. Al analizar las tablas y resolver las 15 preguntas, quedó claro que las llaves foráneas (\textit{Foreign Keys}) son la pieza clave para que todo funcione en orden; por ejemplo, evitan que se registre una calificación de un alumno que no existe o que se empalmen los horarios en los salones. En conclusión, el sistema está muy bien organizado, no duplica datos innecesarios y es completamente confiable para llevar el control escolar de los estudiantes y profesores.
 
-\section{Bibliografía}
-\begin{itemize}
-    \item Elmasri, R., \& Navathe, S. B. (2016). \textit{Fundamentos de Sistemas de Bases de Datos}. Pearson Educación.
-    \item Silberschatz, A., Korth, H. F., \& Sudarshan, S. (2006). \textit{Fundamentos de Bases de Datos}. McGraw-Hill.
-\end{itemize}
 
 \end{document}
