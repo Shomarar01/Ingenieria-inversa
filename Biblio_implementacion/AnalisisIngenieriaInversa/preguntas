@@ -1,0 +1,99 @@
+# Preguntas que se deben responder en base al esquema de base de datos `escuela`
+
+#1. ¿Cuáles son los estudiantes inscritos en el curso "Álgebra"?
+SELECT CONCAT(e.nombre, ' ', e.apellido) AS Nombre_estudiante
+FROM estudiantes e
+INNER JOIN inscripciones i ON e.id = i.id_estudiante
+INNER JOIN cursos c ON i.id_curso = c.id
+WHERE c.nombre = 'Álgebra';
+
+#2. ¿Qué cursos imparte el profesor Pedro Martínez?
+SELECT c.nombre as Nombre_curso, CONCAT(p.nombre, "", p.apellido) as Nombre_profesor 
+FROM cursos c INNER JOIN profesores p ON c.id_profesor=p.id WHERE p.nombre = "Pedro";
+
+#3. ¿Cuántos estudiantes están inscritos en cada curso?
+SELECT c.nombre, COUNT(i.id_estudiante) AS total_estudiantes
+FROM cursos c
+LEFT JOIN inscripciones i ON c.id = i.id_curso
+GROUP BY c.id, c.nombre;
+
+#4. ¿Cuál es el promedio de notas por curso?
+SELECT c.nombre AS Nombre_curso, AVG(n.nota) AS Promedio
+FROM cursos c
+INNER JOIN inscripciones i ON c.id = i.id_curso
+INNER JOIN notas n ON i.id = n.id_inscripcion
+GROUP BY c.nombre;
+
+#5. Lista de estudiantes con notas mayores a 8.0
+SELECT CONCAT(e.nombre, ' ', e.apellido) AS Nombre_estudiante, n.nota AS Calificacion
+FROM estudiantes e
+INNER JOIN inscripciones i ON e.id = i.id_estudiante
+INNER JOIN notas n ON i.id = n.id_inscripcion
+WHERE n.nota > 8.0;
+
+#6. ¿Qué cursos tienen más de una inscripción?
+SELECT c.nombre AS Nombre_curso, COUNT(i.id_estudiante) AS Total_inscripciones
+FROM cursos c
+INNER JOIN inscripciones i ON c.id = i.id_curso
+GROUP BY c.nombre
+HAVING COUNT(i.id_estudiante) > 1;
+
+#7. ¿Qué profesores pertenecen al departamento de 'Ingeniería'?
+SELECT CONCAT(p.nombre, ' ', p.apellido) AS Nombre_profesor, d.nombre AS Departamento
+FROM profesores p
+INNER JOIN departamentos d ON p.id_departamento = d.id
+WHERE d.nombre = 'Ingeniería';
+
+#8. ¿Cuáles son los cursos programados los lunes?
+SELECT c.nombre AS Nombre_curso, h.dia_semana AS Dia
+FROM cursos c
+INNER JOIN horarios h ON c.id = h.id_curso
+WHERE h.dia_semana = 'Lunes';
+
+#9. ¿Qué aulas tienen una capacidad mayor a 25?
+SELECT nombre AS Nombre_aula, capacidad AS Capacidad
+FROM aulas
+WHERE capacidad > 25;
+
+#10. Lista de cursos con su aula y horario
+SELECT c.nombre AS Nombre_curso, a.nombre AS Nombre_aula, h.dia_semana AS Dia, h.hora_inicio AS Inicio, h.hora_fin AS Fin
+FROM cursos c
+INNER JOIN horarios h ON c.id = h.id_curso
+INNER JOIN aulas a ON h.id_aula = a.id;
+
+#11. ¿Qué estudiantes tiene la nota más alta y en qué cursos?
+SELECT CONCAT(e.nombre, ' ', e.apellido) AS Nombre_estudiante, c.nombre AS Nombre_curso, n.nota AS Nota_maxima
+FROM estudiantes e
+INNER JOIN inscripciones i ON e.id = i.id_estudiante
+INNER JOIN cursos c ON i.id_curso = c.id
+INNER JOIN notas n ON i.id = n.id_inscripcion
+ORDER BY n.nota DESC
+LIMIT 1;
+
+#12. ¿Cuántos profesores hay por departamento?
+SELECT d.nombre AS Departamento, COUNT(p.id) AS Total_profesores
+FROM departamentos d
+INNER JOIN profesores p ON d.id = p.id_departamento
+GROUP BY d.nombre;
+
+#13. ¿Qué cursos no tienen estudiantes inscritos?
+SELECT c.nombre AS Nombre_curso
+FROM cursos c
+LEFT JOIN inscripciones i ON c.id = i.id_curso
+WHERE i.id_estudiante IS NULL;
+
+#14. ¿Qué estudiantes están inscritos en más de un curso?
+SELECT CONCAT(e.nombre, ' ', e.apellido) AS Nombre_estudiante, COUNT(i.id_curso) AS Cursos_inscritos
+FROM estudiantes e
+INNER JOIN inscripciones i ON e.id = i.id_estudiante
+GROUP BY e.id, Nombre_estudiante
+HAVING COUNT(i.id_curso) > 1;
+
+#15. ¿Cuál es el curso con menor promedio de notas?
+SELECT c.nombre AS Nombre_curso, AVG(n.nota) AS Promedio
+FROM cursos c
+INNER JOIN inscripciones i ON c.id = i.id_curso
+INNER JOIN notas n ON i.id = n.id_inscripcion
+GROUP BY c.nombre
+ORDER BY Promedio ASC
+LIMIT 1;
